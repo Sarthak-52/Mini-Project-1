@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broken Access Control - OWASP Simulator</title>
+    <link rel="stylesheet" href="newstyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="detail-container">
+        <a href="new.html" class="back-btn">← Back to Dashboard</a>
+        
+        <header>
+            <h1>Broken Access Control</h1>
+        </header>
+
+        <section class="section card">
+            <h2 class="section-title">Description</h2>
+            <p>Access control enforces policy such that users cannot act outside of their intended permissions. Failures typically lead to unauthorized information disclosure, modification, or destruction of all data, or performing a business function outside of the user's limits.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Example: IDOR</h2>
+            <p>An application uses unverified identifiers in an HTTP request to access data:</p>
+            <code>https://example.com/api/v1/users/1234/profile</code>
+            <p style="margin-top: 15px;">By changing `1234` to another ID, an attacker can access other users' private information.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Mitigation</h2>
+            <ul>
+                <li>Deny by Default: Everything is restricted unless explicitly allowed.</li>
+                <li>Implement access control mechanisms once and re-use them throughout the application.</li>
+                <li>Disable web server directory listing and ensure file metadata (e.g., .git) is not reachable.</li>
+            </ul>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Test the Vulnerability</h2>
+            <p>Try to access the "Admin Panel" which is currently hidden for standard users.</p>
+            
+            <div class="simulator-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span>Current User: <strong id="userType">Guest</strong></span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8;">Simulate ID Change (ID=0 for Admin)</span>
+                        <input type="number" id="userId" value="5" class="sim-input" style="width: 60px; margin-bottom: 0;">
+                    </div>
+                </div>
+                
+                <button onclick="checkAccess()" class="sim-btn">Access Admin Panel</button>
+                
+                <div id="result" class="sim-result"></div>
+                <div id="adminPanel" style="display: none; margin-top: 20px; padding: 20px; border: 2px dashed var(--primary); border-radius: 12px; background: rgba(0, 255, 224, 0.05);">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">🛠️ ADMIN CONTROL PANEL</h3>
+                    <p>SYSTEM STATUS: ONLINE</p>
+                    <p>SENSITIVE DATA: [EXPOSED]</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function checkAccess() {
+            const userId = document.getElementById('userId').value;
+            const res = document.getElementById('result');
+            const panel = document.getElementById('adminPanel');
+            const userDisp = document.getElementById('userType');
+            
+            if (userId == "0") {
+                userDisp.innerText = "Administrator";
+                res.className = "sim-result success";
+                res.innerHTML = "<strong>Success!</strong> You exploited an Insecure Direct Object Reference (IDOR) to gain admin access.";
+                panel.style.display = "block";
+            } else {
+                userDisp.innerText = "Guest (ID: " + userId + ")";
+                res.className = "sim-result error";
+                res.innerHTML = "<strong>Access Denied.</strong> You do not have permission to view this panel.";
+                panel.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Misconfiguration - OWASP Simulator</title>
+    <link rel="stylesheet" href="newstyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="detail-container">
+        <a href="new.html" class="back-btn">← Back to Dashboard</a>
+        
+        <header>
+            <h1>Security Misconfiguration</h1>
+        </header>
+
+        <section class="section card">
+            <h2 class="section-title">Description</h2>
+            <p>Security misconfiguration is the most common vulnerability. This is often the result of default configurations or incomplete setups. It can happen at any level of an application stack, including network services, platform, web server, or custom code.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Example: Default Credentials</h2>
+            <p>A web server's admin panel is left accessible with default credentials:</p>
+            <code>Admin / admin</code>
+            <p style="margin-top: 15px;">Attackers scan for these panels and can take full control of the application and its data within seconds.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Mitigation</h2>
+            <ul>
+                <li>Change all default passwords and security settings immediately upon installation.</li>
+                <li>Harden the server by removing unused features, components, and samples.</li>
+                <li>Review and update configurations periodically.</li>
+            </ul>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Test the Vulnerability</h2>
+            <p>Simulate a server status check. See if you can "accidentally" find sensitive information leaking through verbose error messages.</p>
+            
+            <div class="simulator-box">
+                <button onclick="fetchStatus()" class="sim-btn">Check Server Status</button>
+                
+                <div id="statusOutput" style="display: none; margin-top: 20px; font-family: monospace; font-size: 0.85rem; padding: 15px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+                    <div style="color: #4ade80;">[INFO] System Status: OK</div>
+                    <div style="color: #4ade80;">[INFO] Load: 12%</div>
+                    <div id="verboseError" style="color: #ef4444; margin-top: 5px;"></div>
+                </div>
+
+                <div id="result" class="sim-result" style="margin-top: 15px;"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let clickCount = 0;
+        function fetchStatus() {
+            clickCount++;
+            const out = document.getElementById('statusOutput');
+            const err = document.getElementById('verboseError');
+            const res = document.getElementById('result');
+            
+            out.style.display = "block";
+            
+            if (clickCount >= 3) {
+                err.innerHTML = `[DEBUG_ERROR] StackTrace: at main.handle (/app/server.js:45)<br>
+                                 Context: { DB_URL: "mongodb://admin:p@ssword123@prod.db", NODE_ENV: "production" }`;
+                res.className = "sim-result success";
+                res.innerHTML = "<strong>Vulnerability Exploited!</strong> The server is in verbose debug mode, leaking the production database credentials via stack traces.";
+            } else {
+                err.innerHTML = "";
+                res.className = "sim-result error";
+                res.innerHTML = "<strong>Check standard.</strong> (Try clicking a few more times to trigger a mock 'intermittent error').";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insecure Design - OWASP Simulator</title>
+    <link rel="stylesheet" href="newstyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="detail-container">
+        <a href="new.html" class="back-btn">← Back to Dashboard</a>
+        
+        <header>
+            <h1>Insecure Design</h1>
+        </header>
+
+        <section class="section card">
+            <h2 class="section-title">Description</h2>
+            <p>Insecure design is a broad category that represents different flaws, including missing or ineffective control design. It is not about implementation; rather, it refers to vulnerabilities that exist because the application's actual design is flawed from the beginning.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Example: Logic Flaw in Checkout</h2>
+            <p>A web store allows users to modify the 'price' field in an HTML form before submitting it to the server:</p>
+            <code>&lt;input type="hidden" name="price" value="99.99"&gt;</code>
+            <p style="margin-top: 15px;">If the server doesn't re-validate the price from its own database, an attacker can pay $0.01 for a $99 item.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Mitigation</h2>
+            <ul>
+                <li>Establish and use a **secure development lifecycle** (SDLC).</li>
+                <li>Design with security in mind (Secure by Design).</li>
+                <li>Never trust client-side data for critical logic like pricing, permissions, or calculations.</li>
+            </ul>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Test the Vulnerability</h2>
+            <p>Try to "buy" this premium item. The price is set to $1000 by default, but you can "inspect" and change it.</p>
+            
+            <div class="simulator-box">
+                <div style="background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin-bottom: 10px;">💎 Diamond Membership</h3>
+                    <p style="color: #94a3b8; margin-bottom: 15px;">Exclusive access to all features.</p>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>Your Price: $</span>
+                        <input type="number" id="checkoutPrice" class="sim-input" value="1000" style="width: 100px; margin-bottom: 0;">
+                    </div>
+                </div>
+                
+                <button onclick="checkout()" class="sim-btn">Place Order</button>
+                
+                <div id="result" class="sim-result"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function checkout() {
+            const price = parseFloat(document.getElementById('checkoutPrice').value);
+            const res = document.getElementById('result');
+            
+            if (price < 1) {
+                res.className = "sim-result success";
+                res.innerHTML = "<strong>Exploited!</strong> The order was processed at your price of $" + price.toFixed(2) + ". The server failed to validate the design and trusted the user-supplied price.";
+            } else if (price < 1000) {
+                res.className = "sim-result success";
+                res.innerHTML = "<strong>Vulnerability Confirmed:</strong> You successfully manipulated the price to $" + price.toFixed(2) + ". This design is insecure!";
+            } else {
+                res.className = "sim-result error";
+                res.innerHTML = "<strong>Order Placed.</strong> You paid the full price of $1000. Try reducing the price to test the vulnerability.";
+            }
+        }
+    </script>
+</body>
+</html>

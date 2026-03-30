@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptographic Failures - OWASP Simulator</title>
+    <link rel="stylesheet" href="newstyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="detail-container">
+        <a href="new.html" class="back-btn">← Back to Dashboard</a>
+        
+        <header>
+            <h1>Cryptographic Failures</h1>
+        </header>
+
+        <section class="section card">
+            <h2 class="section-title">Description</h2>
+            <p>Formerly known as Sensitive Data Exposure, this occurs when sensitive data (like passwords, credit card numbers, and PII) is not adequately protected from attackers. This can happen due to lack of encryption, weak encryption algorithms, or insecure key management.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Example: Plaintext Storage</h2>
+            <p>A website stores user passwords in a database without hashing them:</p>
+            <code>db.users.save({ username: "user1", password: "mypassword123" });</code>
+            <p style="margin-top: 15px;">If the database is leaked, every user's password is immediately visible to the attacker.</p>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Mitigation</h2>
+            <ul>
+                <li>Always hash passwords using a strong, salted algorithm like **Argon2** or **bcrypt**.</li>
+                <li>Encrypt all sensitive data in transit (using TLS) and at rest.</li>
+                <li>Avoid using legacy or weak cryptographic functions like MD5 or SHA1.</li>
+            </ul>
+        </section>
+
+        <section class="section card">
+            <h2 class="section-title">Test the Vulnerability</h2>
+            <p>Simulate how a website stores your password. Toggle encryption to see the difference.</p>
+            
+            <div class="simulator-box">
+                <div style="margin-bottom: 20px;">
+                    <label>Enter a Password:</label>
+                    <input type="text" id="passInput" class="sim-input" placeholder="e.g. secret123" oninput="updateHash()">
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <span>Use Secure Hashing (bcrypt):</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="hashToggle" onchange="updateHash()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: monospace;">
+                    <div>DATABASE VIEW:</div>
+                    <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Row: { "user": "test_user", "pass": "<span id="dbValue" style="color: var(--primary);"></span>" }</div>
+                </div>
+
+                <div id="result" class="sim-result" style="margin-top: 15px;"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function updateHash() {
+            const pass = document.getElementById('passInput').value;
+            const isSecure = document.getElementById('hashToggle').checked;
+            const dbVal = document.getElementById('dbValue');
+            const res = document.getElementById('result');
+            
+            if (!pass) {
+                dbVal.innerText = "";
+                res.style.display = "none";
+                return;
+            }
+
+            if (isSecure) {
+                // Mock bcrypt hash
+                dbVal.innerText = "$2b$12$K1R2.v9L4/..." + btoa(pass).substring(0, 10);
+                res.className = "sim-result success";
+                res.innerHTML = "<strong>Secure:</strong> The password is hashed. Even if the database is stolen, your actual password remains hidden.";
+            } else {
+                dbVal.innerText = pass;
+                res.className = "sim-result error";
+                res.innerHTML = "<strong>Vulnerable!</strong> Storing passwords as plaintext makes them easily accessible to anyone with database access.";
+            }
+        }
+    </script>
+</body>
+</html>
